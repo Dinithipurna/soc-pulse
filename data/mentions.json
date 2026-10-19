@@ -1,8 +1,8 @@
 {
- "updated": "2026-10-19T19:56:02.907Z",
+ "updated": "2026-10-19T23:41:16.103Z",
  "retain_days": 30,
  "log": [
-  "NUSWhispers: FAILED - HTTP 500",
+  "NUSWhispers: 0 new (0 in window)",
   "Reddit · r/nus: FAILED - no credentials (see SETUP.md)",
   "Bluesky: FAILED - no credentials (see SETUP.md) - public API returned HTTP 403",
   "Hacker News: 0 new (0 in window)"
