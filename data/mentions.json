@@ -1,11 +1,50 @@
 {
- "updated": "2026-10-25T11:27:50.559Z",
+ "schema": 2,
+ "updated": "2026-10-25T13:16:35.048Z",
  "retain_days": 30,
- "log": [
-  "NUSWhispers: 0 new (0 in window)",
-  "Reddit · r/nus: FAILED - no credentials (see SETUP.md)",
-  "Bluesky: FAILED - no credentials (see SETUP.md) - public API returned HTTP 403",
-  "Hacker News: 0 new (0 in window)"
+ "newMatches": 0,
+ "sources": [
+  {
+   "key": "nuswhispers",
+   "label": "NUSWhispers",
+   "status": "ok",
+   "fetched": 2,
+   "note": "",
+   "ms": 16364,
+   "matched": 0
+  },
+  {
+   "key": "hackernews",
+   "label": "Hacker News",
+   "status": "ok",
+   "fetched": 0,
+   "note": "",
+   "ms": 1029,
+   "matched": 0
+  },
+  {
+   "key": "hardwarezone",
+   "label": "HardwareZone",
+   "status": "ok",
+   "fetched": 21,
+   "note": "",
+   "ms": 9172,
+   "matched": 0
+  },
+  {
+   "key": "reddit",
+   "label": "Reddit · r/nus",
+   "status": "disabled",
+   "note": "Needs Reddit API approval; see SETUP.md",
+   "matched": 0
+  },
+  {
+   "key": "bluesky",
+   "label": "Bluesky",
+   "status": "disabled",
+   "note": "Needs an app password; see SETUP.md",
+   "matched": 0
+  }
  ],
  "mentions": []
 }
