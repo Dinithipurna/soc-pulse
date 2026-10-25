@@ -1,15 +1,20 @@
-# SoC Pulse server-side scanner
-# Runs hourly on GitHub's servers, scans public sources, and commits
-# the results to data/mentions.json, which the dashboard reads.
-# Reddit and Bluesky need free credentials - see SETUP.md.
-# NUSWhispers and Hacker News work with no setup at all.
+# SoC Pulse scanner
+# Runs hourly on GitHub's servers: tests the query engine, scans public sources,
+# and commits data/mentions.json + data/pool.json, which the dashboard reads.
+# Active sources need no accounts: NUSWhispers, Hacker News, HardwareZone (RSS).
+# Reddit and Bluesky are disabled in config/monitors.json; see SETUP.md.
 
 name: SoC Pulse scan
 
 on:
   schedule:
     - cron: '17 * * * *'   # hourly at :17 (offset avoids GitHub's on-the-hour congestion)
-  workflow_dispatch:        # allows manual "Run workflow" from the Actions tab
+  workflow_dispatch:        # manual "Run workflow" from the Actions tab
+  push:
+    paths:                  # re-run when monitors or the engine change, so tags update right away
+      - 'config/monitors.json'
+      - 'engine/**'
+      - 'connectors/**'
 
 permissions:
   contents: write
@@ -26,7 +31,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Test query engine and monitors
+        run: node --test test/*.test.mjs
 
       - name: Run scanner
         env:
@@ -41,10 +49,11 @@ jobs:
         run: |
           git config user.name "soc-pulse-bot"
           git config user.email "actions@github.com"
-          git add data/mentions.json
+          git add data/mentions.json data/pool.json
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
             git commit -m "Scheduled scan: update mentions data"
+            git pull --rebase --autostash
             git push
           fi

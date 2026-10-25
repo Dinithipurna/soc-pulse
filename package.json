@@ -1,0 +1,13 @@
+{
+  "name": "soc-pulse",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Media monitoring dashboard prototype for NUS School of Computing",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "scan": "node scan.mjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "engines": { "node": ">=20" }
+}

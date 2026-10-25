@@ -1,0 +1,74 @@
+{
+  "version": 2,
+  "_help": "Monitors are Boolean queries. Syntax: \"phrase\", word, comput*, case:AI, context:nus, @alias, AND OR NOT (capitals), ( ). Test changes in the dashboard's Query tester before committing.",
+
+  "aliases": {
+    "soc": "\"NUS Computing\" OR \"NUS School of Computing\" OR \"NUS SoC\" OR \"School of Computing, NUS\" OR \"School of Computing at NUS\"",
+    "socLoose": "@soc OR ((NUS OR context:nus) AND (\"School of Computing\" OR SoC OR \"computer science\" OR computing OR case:CS*))",
+    "programmes": "\"computer science\" OR \"business analytics\" OR \"business AI systems\" OR \"information security\" OR \"computer engineering\" OR infosec OR \"info sec\" OR \"artificial intelligence\" OR case:CS* OR case:DISA OR case:BAIS OR case:BZA"
+  },
+
+  "monitors": [
+    {
+      "id": "soc-mentions",
+      "name": "SoC mentions",
+      "description": "Direct mentions of the School",
+      "query": "@soc OR (context:nus AND (\"School of Computing\" OR SoC))"
+    },
+    {
+      "id": "programmes",
+      "name": "Programmes",
+      "description": "SoC programmes and student discussion of them",
+      "query": "(@soc OR NUS OR context:nus) AND (@programmes) NOT \"counter strike\""
+    },
+    {
+      "id": "issues",
+      "name": "Potential issues",
+      "description": "Reputational risk: misconduct, security incidents, fraud",
+      "priority": "high",
+      "query": "@socLoose AND (controversy OR misconduct OR investigat* OR leak* OR hacked OR breach OR discriminat* OR harass* OR plagiaris* OR scam OR fraud OR outage OR cheat*)"
+    },
+    {
+      "id": "teaching",
+      "name": "Teaching and learning",
+      "description": "Professors, lectures, modules, grades (split out of Potential issues)",
+      "query": "@socLoose AND (professor OR prof OR lecturer* OR lecture* OR teaching OR tutor* OR module* OR class OR classes OR case:GPA OR case:CAP)"
+    },
+    {
+      "id": "experience",
+      "name": "Student experience",
+      "description": "Workload, stress, internships, admissions (sentiment comes from the classifier)",
+      "query": "(@soc OR \"NUS Computer Science\" OR \"NUS CS\" OR \"NUS Information Security\" OR \"NUS InfoSec\" OR \"NUS DISA\" OR \"NUS BZA\" OR \"NUS BAIS\" OR (context:nus AND (SoC OR computing OR \"computer science\" OR case:CS* OR case:BZA OR case:DISA OR case:BAIS))) AND (workload OR stress* OR difficult OR hard OR competitive OR challenging OR internship* OR reject* OR admission* OR curriculum OR module* OR professor OR lecturer*)"
+    }
+  ],
+
+  "sources": {
+    "nuswhispers": {
+      "enabled": true,
+      "label": "NUSWhispers",
+      "recentCount": 100,
+      "search": ["computing", "computer science", "soc", "cs", "comsci"]
+    },
+    "hackernews": {
+      "enabled": true,
+      "label": "Hacker News",
+      "queries": ["\"NUS\" computing", "\"National University of Singapore\""]
+    },
+    "hardwarezone": {
+      "enabled": true,
+      "label": "HardwareZone",
+      "_note": "Reads each board's public RSS feed (new threads only, not replies).",
+      "forums": [
+        { "id": 305, "slug": "nus", "name": "NUS", "nusOnly": true },
+        { "id": 70, "slug": "degree-programs-and-courses", "name": "Degree Programs and Courses" },
+        { "id": 180, "slug": "campus-zone", "name": "Campus Zone" },
+        { "id": 22, "slug": "employment-office", "name": "Employment Office" },
+        { "id": 16, "slug": "eat-drink-man-woman", "name": "Eat-Drink-Man-Woman" }
+      ]
+    },
+    "reddit": { "enabled": false, "label": "Reddit · r/nus", "note": "Needs Reddit API approval; see SETUP.md" },
+    "bluesky": { "enabled": false, "label": "Bluesky", "note": "Needs an app password; see SETUP.md" }
+  },
+
+  "retention": { "mentionsDays": 30, "poolDays": 7, "maxMentions": 2000, "maxPool": 1500 }
+}

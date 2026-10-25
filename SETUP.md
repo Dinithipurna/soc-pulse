@@ -8,8 +8,8 @@ member — shared history, no browser limitations.
 
 ## What works with zero setup
 
-NUSWhispers and Hacker News are scanned server-side immediately.
-Nothing to configure. To trigger the first run manually:
+NUSWhispers, Hacker News and HardwareZone (RSS) are scanned server-side
+immediately. Nothing to configure. To trigger the first run manually:
 
 1. Go to the repo's **Actions** tab
 2. Select **SoC Pulse scan** in the left sidebar
@@ -22,7 +22,15 @@ After ~1 minute it commits `data/mentions.json`, GitHub Pages redeploys
 > enable — GitHub sometimes requires one-time confirmation for workflows
 > added to a repo.
 
-## Enabling Reddit (5 minutes, free)
+## Enabling Reddit (currently not possible for new apps)
+
+> Reddit now requires approval for every new API client, stops accepting
+> new access requests on 31 October 2026, and closes remaining public API
+> access in March 2027. The steps below only apply if SoC already has an
+> approved Reddit app. After adding the secrets, set
+> `"enabled": true` for `reddit` in `config/monitors.json`.
+
+### Old setup steps
 
 Reddit blocks all anonymous and proxy access, but its official API has a
 generous free tier. You need a Reddit account.
@@ -48,7 +56,9 @@ Secrets are encrypted by GitHub and are **not** visible in the public repo
 or to the dashboard — only the Action can read them. Never put these values
 in `index.html` or any committed file.
 
-## Enabling Bluesky (3 minutes, free)
+## Enabling Bluesky (3 minutes, free; needs an account)
+
+After adding the secrets, set `"enabled": true` for `bluesky` in `config/monitors.json`.
 
 Bluesky's public search API rejects requests from server IPs, so the scanner
 signs in with an **app password** instead. App passwords are separate from
@@ -66,12 +76,11 @@ your real password, read-only for our purposes, and can be revoked any time.
 
 ## Notes
 
-- The server keeps a rolling **30-day** window (max 300 items) in
-  `data/mentions.json`; the dashboard then applies whatever retention window
-  you choose in its Settings on top of that.
-- Each hourly run only commits when something changed, so quiet hours add no
-  commits.
-- Browser-side scanning still runs as before; server and browser results are
-  de-duplicated by post ID.
-- Future channels (X, LinkedIn, TikTok, press RSS) can be added as extra
-  functions in `scan.mjs` following the same pattern.
+- `data/mentions.json` keeps matched posts for 30 days; `data/pool.json` keeps
+  every fetched post for 7 days so the Query tester can try new queries.
+  Limits are in the `retention` block of `config/monitors.json`.
+- Editing `config/monitors.json` and pushing triggers a scan, which re-tags
+  everything stored. A query with a syntax error fails the tests and the
+  scan does not run, so a typo never silently empties the feed.
+- New sources: add `connectors/<name>.mjs` exporting `scan(cfg, {since})`
+  that returns `{posts}`, then register it in `scan.mjs` and the config.

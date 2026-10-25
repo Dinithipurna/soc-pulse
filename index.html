@@ -3,199 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SoC Pulse — Media Monitoring · NUS School of Computing</title>
+<title>SoC Pulse · Media monitoring · NUS School of Computing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --blue:#003D7C;
-  --orange:#EF7C00;
-  --paper:#F7F6F2;
-  --card:#FFFFFF;
-  --ink:#171C26;
-  --ink-soft:#5A6272;
-  --line:#E4E2DA;
-  --alert:#C7362F;
-  --alert-bg:#FBEEEC;
-  --good:#1F7A47;
-  --good-bg:#EAF5EE;
-  --neutral:#8A93A6;
-  --mono:'IBM Plex Mono',monospace;
-  --sans:'IBM Plex Sans',sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5}
-button{font-family:inherit;cursor:pointer}
-:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
-@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
-
-header{background:var(--blue);color:#fff;padding:0 28px}
-.hd-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:14px;height:64px;flex-wrap:wrap}
-.hd-mark{display:flex;align-items:baseline;gap:10px}
-.hd-mark .pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--orange);display:inline-block;animation:beat 2.4s ease-in-out infinite}
-@keyframes beat{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.7}}
-.hd-mark h1{font-size:17px;font-weight:700;letter-spacing:.01em}
-.hd-mark span.sub{font-size:12px;color:#B9CCE3;font-weight:500}
-.hd-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.hd-date{font-family:var(--mono);font-size:12px;color:#B9CCE3}
-.btn-report{background:var(--orange);color:#fff;border:none;border-radius:6px;padding:9px 16px;font-weight:600;font-size:13px}
-.btn-report:hover{background:#D66F00}
-.btn-report[disabled]{opacity:.6;cursor:wait}
-.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:6px;padding:8px 14px;font-weight:600;font-size:13px}
-.btn-ghost:hover{border-color:#fff}
-.btn-ghost[disabled]{opacity:.5;cursor:wait}
-
-.shell{max-width:1280px;margin:0 auto;padding:22px 28px 60px}
-
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
-.kpi .lab{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
-.kpi .val{font-family:var(--mono);font-size:28px;font-weight:600;margin-top:2px}
-.kpi .delta{font-size:12px;font-family:var(--mono)}
-.kpi.attn{border-left:4px solid var(--alert)}
-.kpi.attn .val{color:var(--alert)}
-.kpi.good{border-left:4px solid var(--good)}
-.kpi.good .val{color:var(--good)}
-.up{color:var(--good)}.down{color:var(--alert)}.flat{color:var(--neutral)}
-
-.grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
-
-.feed-card{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.feed-head{display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.feed-head h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-right:auto}
-.ftab{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;color:var(--ink-soft)}
-.ftab.active{background:var(--blue);border-color:var(--blue);color:#fff}
-.ftab.active.t-attn{background:var(--alert);border-color:var(--alert)}
-.ftab.active.t-good{background:var(--good);border-color:var(--good)}
-.mention{padding:14px 16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:4px 1fr;gap:14px}
-.mention:last-child{border-bottom:none}
-.mention .rail{border-radius:2px;background:var(--line)}
-.mention.sev-attn .rail{background:var(--alert)}
-.mention.sev-good .rail{background:var(--good)}
-.m-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
-.chip{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:4px;background:#EEF1F6;color:var(--ink-soft)}
-.chip.src{background:var(--blue);color:#fff}
-.chip.attn{background:var(--alert-bg);color:var(--alert)}
-.chip.good{background:var(--good-bg);color:var(--good)}
-.chip.auto{background:#FFF4E6;color:#B05B00}
-.m-time{font-family:var(--mono);font-size:11px;color:var(--neutral);margin-left:auto}
-.m-text{font-size:13.5px;line-height:1.55;margin:2px 0 8px;overflow-wrap:anywhere}
-.m-text b{background:#FFF0DE;font-weight:600;padding:0 2px;border-radius:2px}
-.m-meta{display:flex;gap:14px;font-family:var(--mono);font-size:11px;color:var(--ink-soft);align-items:center;flex-wrap:wrap}
-.m-actions{margin-left:auto;display:flex;gap:8px}
-.m-actions button{border:1px solid var(--line);background:#fff;border-radius:5px;padding:4px 10px;font-size:11.5px;font-weight:600;color:var(--ink-soft)}
-.m-actions button:hover{border-color:var(--blue);color:var(--blue)}
-.mention.handled{opacity:.45}
-.mention.handled .m-actions .b-handle{border-color:var(--good);color:var(--good)}
-.feed-empty{padding:26px 16px;color:var(--neutral);font-size:13px}
-
-.rail-col{display:flex;flex-direction:column;gap:18px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
-.panel h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:12px}
-.ch-row{display:grid;grid-template-columns:110px 1fr 34px;gap:10px;align-items:center;margin-bottom:9px;font-size:12.5px;cursor:pointer}
-.ch-row.sel span:first-child{color:var(--blue);font-weight:700}
-.ch-bar{height:8px;border-radius:4px;background:#EEF1F6;overflow:hidden;display:flex}
-.ch-bar i{display:block;height:100%}
-.ch-bar .p{background:var(--good)}.ch-bar .n{background:var(--neutral);opacity:.35}.ch-bar .x{background:var(--alert)}
-.ch-count{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);text-align:right}
-.kw{display:flex;flex-wrap:wrap;gap:7px}
-.kw span{font-family:var(--mono);font-size:11.5px;padding:4px 10px;border-radius:14px;border:1px solid var(--line);background:#fff}
-.scan-line{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;line-height:1.5}
-.scan-line.ok::before{content:'\2713 ';color:var(--good)}
-.scan-line.err::before{content:'\2715 ';color:var(--alert)}
-.scan-line.skip::before{content:'\2013 ';color:var(--neutral)}
-.scan-status{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;line-height:1.6}
-.scan-status b{color:var(--ink)}
-
-.overlay{position:fixed;inset:0;background:rgba(15,20,30,.55);display:none;align-items:flex-start;justify-content:center;padding:40px 20px;z-index:50;overflow:auto}
-.overlay.open{display:flex}
-.report{background:#fff;border-radius:12px;max-width:720px;width:100%;padding:28px 32px;position:relative}
-.report .r-head{display:flex;align-items:baseline;gap:12px;border-bottom:3px solid var(--blue);padding-bottom:12px;margin-bottom:16px}
-.report h2{font-size:18px;color:var(--blue)}
-.report .r-date{font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
-.report .r-close{margin-left:auto;border:none;background:#EEF1F6;border-radius:6px;width:30px;height:30px;font-size:15px}
-.report-body{font-size:13.5px;line-height:1.65;white-space:pre-wrap}
-.r-foot{margin-top:18px;display:flex;gap:10px}
-.r-foot button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:8px 14px;font-size:12.5px;font-weight:600}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
-@keyframes sp{to{transform:rotate(360deg)}}
-
-.set-row{margin-bottom:14px}
-.set-row label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:5px}
-.set-row select,.set-row input{width:100%;font-family:var(--mono);font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
-.set-note{font-size:12px;color:var(--neutral);margin-top:4px;line-height:1.5}
-.ch-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px}
-.ch-checks label{display:flex;align-items:center;gap:7px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink);margin:0;font-size:13px}
-.btn-primary{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:9px 16px;font-weight:600;font-size:13px}
-
-.proto-note{margin-top:22px;font-size:11.5px;color:var(--neutral);font-family:var(--mono)}
-@media(max-width:960px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
-</style>
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
 <header>
   <div class="hd-inner">
-    <div class="hd-mark">
+    <a class="hd-mark" href="#">
       <span class="pulse-dot" aria-hidden="true"></span>
       <h1>SoC&nbsp;Pulse</h1>
       <span class="sub">Media monitoring · NUS School of Computing</span>
-    </div>
+    </a>
+    <nav class="hd-nav" aria-label="Views">
+      <a href="#" id="navMonitor" class="on">Monitor</a>
+      <a href="#tester" id="navTester">Query tester</a>
+    </nav>
     <div class="hd-right">
-      <span class="hd-date" id="todayLabel"></span>
-      <button class="btn-ghost" id="btnScan">Scan now</button>
-      <button class="btn-ghost" id="btnSettings">Settings</button>
-      <button class="btn-report" id="btnReport">Generate daily report</button>
+      <span class="hd-date" id="scanAge" title="">Loading…</span>
+      <button class="btn-report" id="btnReport">Daily report</button>
     </div>
   </div>
 </header>
 
-<div class="shell">
+<main class="shell">
+  <div class="banner" id="banner" hidden></div>
 
-  <!-- KPIs (computed from tracked mentions) -->
-  <div class="kpis">
-    <div class="kpi"><div class="lab">Mentions tracked</div><div class="val" id="kMent">–</div><div class="delta flat" id="kChan"></div></div>
-    <div class="kpi attn"><div class="lab">Needs attention</div><div class="val" id="kAttn">–</div><div class="delta down">flagged for follow-up</div></div>
-    <div class="kpi good"><div class="lab">Positive highlights</div><div class="val" id="kGood">–</div><div class="delta up">showcase &amp; amplify items</div></div>
-    <div class="kpi"><div class="lab">Net sentiment</div><div class="val" id="kSent">–</div><div class="delta flat">of tracked mentions</div></div>
-  </div>
-
-  <div class="grid">
-
-    <!-- Feed -->
-    <div class="feed-card">
-      <div class="feed-head">
-        <h2>Live mentions</h2>
-        <button class="ftab active" data-f="all">All</button>
-        <button class="ftab t-attn" data-f="attn">Needs attention</button>
-        <button class="ftab t-good" data-f="good">Positive</button>
-        <button class="ftab" data-f="neutral">Neutral</button>
-      </div>
-      <div id="feed"></div>
+  <!-- ===================== Monitor view ===================== -->
+  <section id="viewMonitor">
+    <div class="kpis" aria-live="polite">
+      <div class="kpi"><div class="lab">Mentions</div><div class="val" id="kMent">–</div><div class="delta" id="kMentSub"></div></div>
+      <div class="kpi attn"><div class="lab">Needs attention</div><div class="val" id="kAttn">–</div><div class="delta">negative or risk terms</div></div>
+      <div class="kpi well"><div class="lab">Wellbeing flags</div><div class="val" id="kWell">–</div><div class="delta">route to wellbeing team</div></div>
+      <div class="kpi good"><div class="lab">Positive</div><div class="val" id="kGood">–</div><div class="delta">showcase and amplify</div></div>
     </div>
 
-    <!-- Right rail -->
-    <div class="rail-col">
-      <div class="panel">
-        <h2>Scanner</h2>
-        <div class="scan-status" id="scanStatus">Loading…</div>
-        <div id="scanLog"></div>
+    <div class="filters">
+      <div class="mon-chips" id="monChips" role="group" aria-label="Filter by monitor"></div>
+      <div class="filter-row">
+        <label>Source <select id="fSource"></select></label>
+        <label>Sentiment
+          <select id="fSev">
+            <option value="all">All</option>
+            <option value="attn">Needs attention</option>
+            <option value="wellbeing">Wellbeing flags</option>
+            <option value="good">Positive</option>
+            <option value="neutral">Neutral</option>
+          </select>
+        </label>
+        <label>Period
+          <select id="fRange">
+            <option value="1">Last 24 hours</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </label>
+        <label class="grow">Search within results
+          <input id="fQuery" type="search" spellcheck="false" placeholder='e.g. internship OR "career fair" NOT NTU'>
+        </label>
+        <button class="btn-line" id="btnCsv">Export CSV</button>
       </div>
-      <div class="panel">
-        <h2>Channels</h2>
-        <div id="channels"></div>
+      <div class="q-msg" id="fQueryMsg" aria-live="polite"></div>
+    </div>
+
+    <div class="grid">
+      <div class="feed-card">
+        <div class="feed-head"><h2>Mentions</h2><span class="feed-count" id="feedCount"></span></div>
+        <div id="feed"></div>
+        <div class="feed-more" id="feedMore" hidden><button class="btn-line" id="btnMore">Show more</button></div>
       </div>
-      <div class="panel">
-        <h2>Tracked keywords</h2>
-        <div class="kw" id="kwList"></div>
+
+      <aside class="rail-col">
+        <div class="panel">
+          <h2>Daily volume</h2>
+          <div id="trend"></div>
+          <p class="panel-note">Orange = spike: more than twice the previous 7-day average. Follows the filters above, over 30 days.</p>
+        </div>
+        <div class="panel">
+          <h2>Sources</h2>
+          <div id="sources"></div>
+        </div>
+        <div class="panel">
+          <h2>Monitors</h2>
+          <div id="monitors"></div>
+          <p class="panel-note">Edit queries in <code>config/monitors.json</code>. Try changes in the Query tester first.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===================== Query tester view ===================== -->
+  <section id="viewTester" hidden>
+    <div class="tester">
+      <div class="panel tq-panel">
+        <h2>Query tester</h2>
+        <p class="panel-note tq-intro">Write a Boolean query and see what it would have caught in the posts the scanner collected. Nothing here changes the live monitors.</p>
+        <div class="tq-row">
+          <label>Start from
+            <select id="tqLoad"><option value="">Blank query</option></select>
+          </label>
+          <label>Sources
+            <select id="tqSource"></select>
+          </label>
+        </div>
+        <label class="tq-label" for="tqQuery">Query</label>
+        <textarea id="tqQuery" spellcheck="false" rows="6" placeholder='@soc AND (internship* OR "career fair")'></textarea>
+        <div class="q-msg" id="tqMsg" aria-live="polite"></div>
+        <div class="tq-actions">
+          <button class="btn-line" id="tqCopy">Copy as monitor entry</button>
+        </div>
+        <details class="syntax">
+          <summary>Syntax</summary>
+          <table>
+            <tr><td><code>word</code></td><td>Whole word, any case</td></tr>
+            <tr><td><code>"a phrase"</code></td><td>Words in order; punctuation between them ignored</td></tr>
+            <tr><td><code>comput*</code></td><td>Any word starting with comput</td></tr>
+            <tr><td><code>case:AI</code></td><td>Case-sensitive; use for acronyms (case:CS* also works)</td></tr>
+            <tr><td><code>context:nus</code></td><td>Post is from an NUS-only community (NUSWhispers, HWZ NUS board)</td></tr>
+            <tr><td><code>AND OR NOT</code></td><td>Capitals only. Adjacent terms are ANDed. NOT binds tightest, then AND, then OR</td></tr>
+            <tr><td><code>( )</code></td><td>Grouping</td></tr>
+          </table>
+          <div class="aliases" id="tqAliases"></div>
+        </details>
+      </div>
+      <div class="feed-card">
+        <div class="feed-head"><h2>Matches</h2><span class="feed-count" id="tqCount"></span></div>
+        <div class="tq-break" id="tqBreak"></div>
+        <div id="tqResults"></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <p class="proto-note">All mentions are real public posts · metrics computed from tracked mentions · NUSWhispers &amp; Hacker News scanned live in this browser, plus the hourly server pipeline (Reddit &amp; Bluesky need credentials — see SETUP.md) · X / LinkedIn / TikTok / press coming to the pipeline · the retention window applies to every mention</p>
-</div>
+  <p class="proto-note">Prototype. Public posts only; collected hourly by GitHub Actions from NUSWhispers, Hacker News and HardwareZone.</p>
+</main>
 
-<!-- Report modal -->
 <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="rTitle">
   <div class="report">
     <div class="r-head">
@@ -203,549 +146,14 @@ header{background:var(--blue);color:#fff;padding:0 28px}
       <span class="r-date" id="rDate"></span>
       <button class="r-close" id="rClose" aria-label="Close report">✕</button>
     </div>
-    <div class="report-body" id="rBody">Generating…</div>
+    <p class="panel-note" id="rScope"></p>
+    <div class="report-body" id="rBody"></div>
     <div class="r-foot">
       <button id="rCopy">Copy to clipboard</button>
-      <button id="rAgain">Regenerate</button>
     </div>
   </div>
 </div>
 
-<!-- Settings modal -->
-<div class="overlay" id="setOverlay" role="dialog" aria-modal="true" aria-labelledby="sTitle">
-  <div class="report" style="max-width:480px">
-    <div class="r-head">
-      <h2 id="sTitle">Scanner settings</h2>
-      <button class="r-close" id="sClose" aria-label="Close settings">✕</button>
-    </div>
-    <div class="set-row">
-      <label for="setInterval">Automatic scan interval</label>
-      <select id="setInterval">
-        <option value="15">Every 15 minutes</option>
-        <option value="30">Every 30 minutes</option>
-        <option value="60">Every hour</option>
-        <option value="180">Every 3 hours</option>
-        <option value="360">Every 6 hours</option>
-        <option value="0">Off (manual only)</option>
-      </select>
-      <div class="set-note">Scans run while this dashboard is open in a browser tab. If the tab was closed, a scan runs on reopening when one is due.</div>
-    </div>
-    <div class="set-row">
-      <label for="setRetention">Keep scanned records for</label>
-      <select id="setRetention">
-        <option value="1">1 day</option>
-        <option value="3">3 days</option>
-        <option value="7">1 week</option>
-        <option value="14">2 weeks</option>
-        <option value="30">30 days</option>
-      </select>
-      <div class="set-note">Everything older than this window is pruned from the dashboard automatically.</div>
-    </div>
-    <div class="set-row">
-      <label>Channels to scan</label>
-      <div class="ch-checks">
-        <label><input type="checkbox" id="chW"> NUSWhispers</label>
-        <label><input type="checkbox" id="chR"> Reddit &middot; r/nus</label>
-        <label><input type="checkbox" id="chB"> Bluesky</label>
-        <label><input type="checkbox" id="chH"> Hacker News</label>
-      </div>
-      <div class="set-note">Unticked channels are skipped by the scanner and hidden from the dashboard.</div>
-    </div>
-    <div class="set-row">
-      <label for="setKeywords">Tracked keywords (comma-separated)</label>
-      <input id="setKeywords" type="text" spellcheck="false">
-      <div class="set-note">These keywords query all live channels and match posts' relevance.</div>
-    </div>
-    <div class="r-foot">
-      <button class="btn-primary" id="sSave">Save settings</button>
-      <button id="sClear">Clear scanned history</button>
-    </div>
-  </div>
-</div>
-
-<script>
-/* ================= Storage & settings ================= */
-const LS_KEY = 'socpulse.v1';
-const DEFAULTS = { intervalMin: 60, retentionDays: 7,
-  channels: { whispers:true, hn:true, bsky:true, reddit:true },
-  keywords: 'computing, computer science, coursereg, CS1101S, CS2030S, FYP, SoC' };
-
-function loadStore(){
-  try{ const s = JSON.parse(localStorage.getItem(LS_KEY)); if(s && s.settings){ s.settings.channels = Object.assign({}, DEFAULTS.channels, s.settings.channels||{}); return s; } }catch(e){}
-  return { settings: {...DEFAULTS}, mentions: [], handled: [], lastScan: 0, lastLog: [] };
-}
-let store = loadStore();
-function saveStore(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch(e){} }
-function kwArr(){ return store.settings.keywords.split(',').map(k=>k.trim()).filter(Boolean); }
-
-/* ================= Curated seed mentions (real public posts) ================= */
-const CURATED = [
- {id:'c1', sev:'attn', src:'Reddit · r/nus', time:'2026-08-04T09:00:00+08:00', reach:'70 upvotes · 4 comments',
-  text:'Student reports <b>missing all three rounds</b> of CourseReg bidding and still being without needed classes — thread drawing sympathy and similar stories.',
-  tag:'CourseReg complaint · monitor + FAQ reply', url:'https://www.reddit.com/r/nus/comments/1vf4r6z/missed_all_three_rounds_of_bidding/'},
- {id:'c2', sev:'attn', src:'Reddit · r/nus', time:'2026-08-01T09:00:00+08:00', reach:'100 upvotes · 28 comments',
-  text:'A fresh grad shares a detailed <b>job hunting report</b> — applications sent, response rates and outcomes — fuelling discussion on the tech job market for computing grads.',
-  tag:'Employment sentiment · monitor', url:'https://www.reddit.com/r/nus/comments/1vcqqch/graduate_job_hunting_report/'},
- {id:'c3', sev:'attn', src:'NUSWhispers', time:'2026-08-18T20:00:00+08:00', reach:'Confession #99161',
-  text:'A Year 4 <b>computer science</b> student asks Prof Ben and computing seniors for advice as friends begin their FYP — worried about falling behind.',
-  tag:'Student concern · supportive reply / route to advisors', url:'https://www.nuswhispers.com/confession/99161'},
- {id:'c4', sev:'good', src:'LinkedIn', time:'2026-08-13T10:00:00+08:00', reach:'70+ reactions',
-  text:'NUS Computing congratulates the 12 staff and faculty members who received the <b>2026 National Awards</b>.',
-  tag:'Achievement · showcase candidate', url:'https://www.linkedin.com/posts/nuscomputing_singapore-nus-nuscomputing-activity-7493496903205220352-LGx4'},
- {id:'c5', sev:'good', src:'The Straits Times', time:'2026-08-05T08:00:00+08:00', reach:'National press',
-  text:'Coverage of the new <b>Razer–NUS AI lab</b>, which will build game companions "beyond Tamagotchi" levels of intelligence.',
-  tag:'Research coverage · amplify', url:'https://www.straitstimes.com/tech/new-razer-nus-ai-lab-to-build-companions-beyond-tamagotchi-gaming-intelligence'},
- {id:'c6', sev:'good', src:'TikTok', time:'2025-09-15T12:00:00+08:00', reach:'Public video',
-  text:'"<b>Life as a Computer Science student at NUS</b>" — a day-in-the-life video showing campus, classes and study routine.',
-  tag:'Organic advocacy · engage creator', url:'https://www.tiktok.com/@user3869533654120/video/7545866925272763656'},
- {id:'c7', sev:'good', src:'X (Twitter)', time:'2026-08-19T11:00:00+08:00', reach:'@NUSComputing official',
-  text:'The school welcomes <b>17 new faculty members</b>, with expertise spanning trustworthy AI to platform economics.',
-  tag:'Community news · engage', url:'https://x.com/NUSComputing/status/2088180427043586066'},
- {id:'c8', sev:'neutral', src:'HardwareZone', time:'2025-06-11T12:00:00+08:00', reach:'Active forum thread',
-  text:'Forum thread debates whether it is <b>still a good time</b> to get an NUS Computing degree, given growing competition in the CS field.',
-  tag:'Prospective-student query · FAQ opportunity', url:'https://forums.hardwarezone.com.sg/threads/is-it-still-a-good-time-to-get-nus-computing-degree.7135350/'},
- {id:'c9', sev:'neutral', src:'Telegram · SoC channels', time:'2026-08-20T09:00:00+08:00', reach:'Official club channel',
-  text:'NUS Students\' Computing Club announcement channel — <b>events and updates</b> for the SoC community.',
-  tag:'Community chatter', url:'https://t.me/s/nuscomputingclub'},
-];
-
-/* ================= Helpers ================= */
-const $ = id => document.getElementById(id);
-function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function fmtRel(iso){
-  const t = new Date(iso).getTime(); if(!t) return '';
-  const d = Date.now()-t;
-  if(d < 3600000) return Math.max(1,Math.round(d/60000))+'m ago';
-  if(d < 86400000) return Math.round(d/3600000)+'h ago';
-  if(d < 7*86400000) return Math.round(d/86400000)+'d ago';
-  return new Date(t).toLocaleDateString('en-SG',{day:'numeric',month:'short'});
-}
-function cutoff(){ return Date.now() - store.settings.retentionDays*86400000; }
-function chKey(src){
-  if(src==='NUSWhispers') return 'whispers';
-  if(src==='Hacker News') return 'hn';
-  if(src==='Bluesky') return 'bsky';
-  if(src.indexOf('Reddit')===0) return 'reddit';
-  return null;
-}
-function allMentions(){
-  const ch = store.settings.channels;
-  const keep = m => new Date(m.time).getTime() >= cutoff() && (chKey(m.src)===null || ch[chKey(m.src)]);
-  return [...CURATED.filter(keep), ...store.mentions.filter(keep)].sort((a,b)=> new Date(b.time)-new Date(a.time));
-}
-
-/* ================= Classification (heuristic; humans stay in the loop) ================= */
-function classify(text){
-  const t = text.toLowerCase();
-  if(/(depress|anxi|suicid|self[- ]?harm|burn[t ]?out|burnout|overwhelm|mental health|hopeless|lonely|breaking down)/.test(t))
-    return {sev:'attn', tag:'Possible wellbeing signal · route to wellbeing team — no automated reply'};
-  if(/(complain|fail|worst|angry|disappoint|frustrat|scam|broken|can'?t get|cannot get|no job|jobless|reject|retrench|unfair|rant|struggl|regret|stress|toxic|waste)/.test(t))
-    return {sev:'attn', tag:'Negative sentiment · review &amp; monitor'};
-  if(/(congrat|award|win\b|won\b|proud|launch|welcome|love|amazing|best|excit|achiev|grateful|thank|top \d|breakthrough|scholarship)/.test(t))
-    return {sev:'good', tag:'Positive mention · consider amplifying'};
-  return {sev:'neutral', tag:'Community chatter · monitor'};
-}
-
-/* ================= Scan sources ================= */
-async function fetchJSON(url, ms){
-  const c = new AbortController(); const to = setTimeout(()=>c.abort(), ms||10000);
-  try{ const r = await fetch(url,{signal:c.signal}); clearTimeout(to);
-    if(!r.ok) throw new Error('HTTP '+r.status); return await r.json();
-  }catch(e){ clearTimeout(to); throw e; }
-}
-
-async function scanNUSWhispers(){
-  const seen = new Set(store.mentions.map(m=>m.id));
-  const out = [];
-  let reached = false;
-  const addConf = (c)=>{
-    const id = 'w'+c.confession_id;
-    if(seen.has(id)) return;
-    let when = null;
-    const ts = c.created_at || c.status_updated_at || '';
-    if(ts) when = new Date((''+ts).replace(' ','T'));
-    if(!when || isNaN(when.getTime()) || when.getTime() < cutoff()) return;
-    const body = (c.content||'').replace(/\s+/g,' ').trim();
-    if(!body) return;
-    const cls = classify(body);
-    seen.add(id);
-    out.push({ id, sev:cls.sev, src:'NUSWhispers', time:when.toISOString(),
-      reach:'Confession #'+c.confession_id+' · '+(c.views||0)+' views'+(c.fb_like_count?' · '+c.fb_like_count+' likes':''),
-      text: esc(body.length>240 ? body.slice(0,240)+'…' : body),
-      tag: cls.tag, url:'https://www.nuswhispers.com/confession/'+c.confession_id, auto:true });
-  };
-  try{
-    const j = await fetchJSON('https://www.nuswhispers.com/api/confessions/recent?count=60');
-    reached = true;
-    const kws = kwArr().map(k=>k.toLowerCase());
-    for(const c of ((j.data && j.data.confessions) || [])){
-      const low = (c.content||'').toLowerCase();
-      if(kws.some(k=>low.includes(k)) || /\bsoc\b|school of computing|comp\s?sci/.test(low)) addConf(c);
-    }
-  }catch(e){}
-  for(const kw of kwArr().slice(0,4)){
-    let j;
-    try{ j = await fetchJSON('https://www.nuswhispers.com/api/confessions/search/'+encodeURIComponent(kw)+'?count=10'); reached = true; }
-    catch(e){ continue; }
-    for(const c of ((j.data && j.data.confessions) || [])) addConf(c);
-  }
-  if(!reached) throw new Error('unreachable');
-  return out;
-}
-
-async function fetchJSONv(urls, ms){
-  let err;
-  for(const u of urls){ try{ return await fetchJSON(u, ms); }catch(e){ err=e; } }
-  throw err || new Error('unreachable');
-}
-function prox(u){ return [u,
-  'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),
-  'https://api.allorigins.win/raw?url='+encodeURIComponent(u)]; }
-
-let serverInfo = null;
-function serverLine(prefix){ return (serverInfo && serverInfo.log.find(l => l.indexOf(prefix)===0)) || ''; }
-function serverSummary(prefix){ return serverLine(prefix).replace(/^[^:]*:\s*/,''); }
-async function scanServerFeed(){
-  const seen = new Set(store.mentions.map(m=>m.id));
-  let j;
-  try{ j = await fetchJSON('data/mentions.json?cb='+Date.now(), 8000); }
-  catch(e){ serverInfo = null; if((''+e.message).indexOf('404')>=0) return []; throw e; }
-  serverInfo = { updated: j.updated||'', log: Array.isArray(j.log) ? j.log : [] };
-  const out = [];
-  for(const m of (j.mentions||[])){
-    if(!m || !m.id || seen.has(m.id)) continue;
-    const t = new Date(m.time).getTime();
-    if(isNaN(t) || t < cutoff()) continue;
-    seen.add(m.id);
-    out.push({ id:m.id, sev:m.sev||'neutral', src:m.src||'Server feed', time:m.time,
-      reach:(m.reach||'')+' \u00b7 via server scan', text:m.text||'', tag:m.tag||'',
-      url:m.url||'#', auto:true });
-  }
-  return out;
-}
-
-async function scanReddit(){
-  const seen = new Set(store.mentions.map(m=>m.id));
-  const out = [];
-  const j = await fetchJSONv(prox('https://www.reddit.com/r/nus/new.json?limit=25'), 12000);
-  const kids = (j.data && j.data.children) || [];
-  for(const k of kids){
-    const p = k.data || {};
-    const id = 'r'+p.id;
-    if(seen.has(id)) continue;
-    const when = new Date((p.created_utc||0)*1000);
-    if(isNaN(when.getTime()) || when.getTime() < cutoff()) continue;
-    const body = ((p.title||'')+'. '+(p.selftext||'')).replace(/\s+/g,' ').trim();
-    const rel = kwArr().some(kw=>body.toLowerCase().includes(kw.toLowerCase()));
-    if(!rel) continue;
-    const cls = classify(body);
-    seen.add(id);
-    out.push({ id, sev:cls.sev, src:'Reddit \u00b7 r/nus', time:when.toISOString(),
-      reach:(p.ups||0)+' upvotes \u00b7 '+(p.num_comments||0)+' comments',
-      text: esc(body.length>240 ? body.slice(0,240)+'\u2026' : body),
-      tag: cls.tag, url:'https://www.reddit.com'+p.permalink, auto:true });
-  }
-  return out;
-}
-
-async function scanBluesky(){
-  const seen = new Set(store.mentions.map(m=>m.id));
-  const out = [];
-  const j = await fetchJSONv(['https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q='+encodeURIComponent('NUS computing')+'&limit=20'], 12000);
-  for(const p of (j.posts||[])){
-    const rkey = (p.uri||'').split('/').pop();
-    const id = 'b'+rkey;
-    if(seen.has(id)) continue;
-    const when = new Date(p.record && p.record.createdAt);
-    if(isNaN(when.getTime()) || when.getTime() < cutoff()) continue;
-    const body = ((p.record && p.record.text)||'').replace(/\s+/g,' ').trim();
-    if(!/\bnus\b/i.test(body)) continue;
-    const cls = classify(body);
-    seen.add(id);
-    out.push({ id, sev:cls.sev, src:'Bluesky', time:when.toISOString(),
-      reach:(p.likeCount||0)+' likes \u00b7 '+(p.repostCount||0)+' reposts',
-      text: esc(body.length>240 ? body.slice(0,240)+'\u2026' : body),
-      tag: cls.tag, url:'https://bsky.app/profile/'+((p.author&&p.author.handle)||'')+'/post/'+rkey, auto:true });
-  }
-  return out;
-}
-
-async function scanHackerNews(){
-  const seen = new Set(store.mentions.map(m=>m.id));
-  const out = [];
-  const j = await fetchJSON('https://hn.algolia.com/api/v1/search_by_date?query='+encodeURIComponent('"NUS" computing')+'&tags=story&hitsPerPage=15');
-  for(const h of (j.hits||[])){
-    const id = 'hn'+h.objectID;
-    if(seen.has(id)) continue;
-    const when = new Date(h.created_at);
-    if(isNaN(when.getTime()) || when.getTime() < cutoff()) continue;
-    const title = (h.title||'').trim(); if(!title) continue;
-    const rel = /\bnus\b/i.test(title) || kwArr().some(k=>title.toLowerCase().includes(k.toLowerCase()));
-    if(!rel) continue;
-    const cls = classify(title);
-    seen.add(id);
-    out.push({ id, sev:cls.sev, src:'Hacker News', time:when.toISOString(),
-      reach:(h.points||0)+' points · '+(h.num_comments||0)+' comments',
-      text: esc(title), tag: cls.tag,
-      url: h.url || ('https://news.ycombinator.com/item?id='+h.objectID), auto:true });
-  }
-  return out;
-}
-
-/* ================= Scan orchestration ================= */
-let scanning = false;
-async function runScan(trigger){
-  if(scanning) return; scanning = true;
-  const btn = $('btnScan'); btn.disabled = true; btn.textContent = 'Scanning…';
-  $('scanStatus').innerHTML = '<b>Scanning…</b> ('+esc(trigger||'manual')+')';
-  const log = [];
-  const ch = store.settings.channels;
-  // 1) Server feed first: it tells us what the pipeline already covers
-  try{
-    const items = await scanServerFeed();
-    store.mentions.push(...items);
-    log.push({cls:'ok', text:'Server feed: '+items.length+' new'+(serverInfo ? ' \u00b7 server scanned '+fmtRel(serverInfo.updated) : ' \u00b7 pipeline not active yet')});
-  }catch(e){ serverInfo = null; log.push({cls:'err', text:'Server feed: unreachable'}); }
-  // 2) Browser-side channels
-  const jobs = [];
-  if(ch.whispers) jobs.push(['NUSWhispers', scanNUSWhispers]); else log.push({cls:'skip', text:'NUSWhispers: off in settings'});
-  if(!ch.reddit) log.push({cls:'skip', text:'Reddit: off in settings'});
-  else if(serverInfo){
-    // Reddit is never reachable from a browser; report what the server did instead
-    const sl = serverLine('Reddit');
-    if(/no credentials/i.test(sl)) log.push({cls:'skip', text:'Reddit \u00b7 r/nus: server-side \u00b7 awaiting credentials (SETUP.md)'});
-    else if(/FAILED/.test(sl)) log.push({cls:'err', text:'Reddit \u00b7 r/nus: server-side scan failed \u00b7 '+serverSummary('Reddit')});
-    else log.push({cls:'ok', text:'Reddit \u00b7 r/nus: via server feed'+(sl ? ' \u00b7 '+serverSummary('Reddit') : '')});
-  } else jobs.push(['Reddit \u00b7 r/nus', scanReddit]);
-  if(ch.bsky) jobs.push(['Bluesky', scanBluesky]); else log.push({cls:'skip', text:'Bluesky: off in settings'});
-  if(ch.hn) jobs.push(['Hacker News', scanHackerNews]); else log.push({cls:'skip', text:'Hacker News: off in settings'});
-  for(const [name, fn] of jobs){
-    try{
-      const items = await fn();
-      store.mentions.push(...items);
-      log.push({cls:'ok', text:name+': '+items.length+' new'});
-    }catch(e){
-      let cls = 'err', text = name+': unreachable';
-      if(name==='Bluesky'){
-        const sl = serverLine('Bluesky');
-        if(sl && !/FAILED/.test(sl)){ cls='ok'; text='Bluesky: via server feed \u00b7 '+serverSummary('Bluesky'); }
-        else if(/no credentials/i.test(sl)) text='Bluesky: blocked in this browser \u00b7 server-side awaiting app password (SETUP.md)';
-        else text='Bluesky: blocked in this browser (ad-blocker?)';
-      }
-      if(name.indexOf('Reddit')===0) text='Reddit \u00b7 r/nus: unreachable from browsers \u00b7 enable the server pipeline (SETUP.md)';
-      log.push({cls, text});
-    }
-  }
-  log.push({cls:'skip', text:'X, LinkedIn, TikTok, press: not yet in the server pipeline'});
-  store.mentions = store.mentions.filter(m => new Date(m.time).getTime() >= cutoff());
-  store.lastScan = Date.now();
-  store.lastLog = log;
-  saveStore();
-  scanning = false;
-  btn.disabled = false; btn.textContent = 'Scan now';
-  renderAll();
-}
-
-function renderScanner(){
-  const s = store.settings;
-  let status;
-  if(scanning){ status = '<b>Scanning…</b>'; }
-  else if(!store.lastScan){ status = 'No scan yet · press <b>Scan now</b>'; }
-  else{
-    let next = 'auto-scan off';
-    if(s.intervalMin > 0){
-      const in_ = store.lastScan + s.intervalMin*60000 - Date.now();
-      next = in_ <= 0 ? 'next scan due' : 'next in '+Math.max(1,Math.round(in_/60000))+'m';
-    }
-    status = 'Last scan <b>'+fmtRel(new Date(store.lastScan).toISOString())+'</b> · '+next;
-  }
-  $('scanStatus').innerHTML = status +
-    '<br>Interval: <b>'+(s.intervalMin>0 ? (s.intervalMin>=60 ? (s.intervalMin/60)+'h' : s.intervalMin+'m') : 'manual')+
-    '</b> · Retention: <b>'+s.retentionDays+'d</b>';
-  $('scanLog').innerHTML = (store.lastLog||[]).map(l=>'<div class="scan-line '+l.cls+'">'+esc(l.text)+'</div>').join('');
-}
-
-/* ================= Render ================= */
-const todayLabel = new Date().toLocaleDateString('en-SG',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-$('todayLabel').textContent = todayLabel;
-$('rDate').textContent = todayLabel;
-
-let activeFilter = 'all';
-let activeChannel = null;
-function renderAll(){
-  const items = allMentions();
-  const feed = $('feed'); feed.innerHTML = '';
-  let shown = 0;
-  items.forEach(m=>{
-    if(activeFilter!=='all' && m.sev!==activeFilter) return;
-    if(activeChannel && m.src!==activeChannel) return;
-    shown++;
-    const d = document.createElement('div');
-    d.className = 'mention sev-'+m.sev + (store.handled.includes(m.id)?' handled':'');
-    d.dataset.sev = m.sev;
-    const chip = m.sev==='attn' ? '<span class="chip attn">NEEDS ATTENTION</span>'
-             : m.sev==='good' ? '<span class="chip good">POSITIVE</span>'
-             : '<span class="chip">NEUTRAL</span>';
-    const autoChip = m.auto ? '<span class="chip auto">AUTO-SCANNED</span>' : '';
-    const handled = store.handled.includes(m.id);
-    d.innerHTML = `<div class="rail"></div><div>
-      <div class="m-top"><span class="chip src">${esc(m.src)}</span>${chip}${autoChip}<span class="m-time">${fmtRel(m.time)}</span></div>
-      <div class="m-text">${m.text}</div>
-      <div class="m-meta"><span>${esc(m.reach)}</span><span>· ${m.tag}</span>
-        <span class="m-actions">
-          <button class="b-open">Open source</button>
-          <button class="b-handle">${handled?'Handled ✓':'Mark handled'}</button>
-        </span></div></div>`;
-    d.querySelector('.b-handle').addEventListener('click',()=>{
-      const i = store.handled.indexOf(m.id);
-      if(i>=0) store.handled.splice(i,1); else store.handled.push(m.id);
-      saveStore(); renderAll();
-    });
-    d.querySelector('.b-open').addEventListener('click',()=>{
-      window.open(m.url,'_blank','noopener');
-    });
-    feed.appendChild(d);
-  });
-  if(!shown) feed.innerHTML = '<div class="feed-empty">No mentions in this window — sources are quiet right now. Try widening retention in Settings, or check back after the next scan.</div>';
-
-  const chWrap = $('channels'); chWrap.innerHTML='';
-  const byCh = {};
-  items.forEach(m=>{ (byCh[m.src] = byCh[m.src]||[]).push(m.sev); });
-  Object.entries(byCh).forEach(([name,sevs])=>{
-    const c = sevs.length;
-    const p = Math.round(100*sevs.filter(s=>s==='good').length/c);
-    const x = Math.round(100*sevs.filter(s=>s==='attn').length/c);
-    const n = 100-p-x;
-    const r = document.createElement('div'); r.className='ch-row'+(activeChannel===name?' sel':'');
-    r.title = 'Click to filter the feed by this channel';
-    r.addEventListener('click',()=>{ activeChannel = (activeChannel===name?null:name); renderAll(); });
-    r.innerHTML = `<span>${esc(name)}</span>
-      <div class="ch-bar" role="img" aria-label="${esc(name)}: ${p}% positive, ${n}% neutral, ${x}% negative">
-        <i class="p" style="width:${p}%"></i><i class="n" style="width:${n}%"></i><i class="x" style="width:${x}%"></i>
-      </div><span class="ch-count">${c}</span>`;
-    chWrap.appendChild(r);
-  });
-
-  const nAttn = items.filter(m=>m.sev==='attn').length;
-  const nGood = items.filter(m=>m.sev==='good').length;
-  $('kMent').textContent = items.length;
-  $('kChan').textContent = 'across '+Object.keys(byCh).length+' channels';
-  $('kAttn').textContent = nAttn;
-  $('kGood').textContent = nGood;
-  const net = items.length ? (nGood-nAttn)/items.length : 0;
-  $('kSent').textContent = (net>=0?'+':'')+net.toFixed(2);
-
-  $('kwList').innerHTML = kwArr().map(k=>'<span>'+esc(k)+'</span>').join('');
-
-  renderScanner();
-}
-
-document.querySelectorAll('.ftab').forEach(t=>{
-  t.addEventListener('click',()=>{
-    document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    activeFilter = t.dataset.f;
-    renderAll();
-  });
-});
-
-/* ================= Scheduler ================= */
-function tick(){
-  const s = store.settings;
-  if(!scanning && s.intervalMin > 0 && Date.now() - store.lastScan >= s.intervalMin*60000){
-    runScan('scheduled');
-  } else {
-    renderScanner();
-  }
-}
-setInterval(tick, 60000);
-
-/* ================= Settings ================= */
-$('btnSettings').addEventListener('click',()=>{
-  $('setInterval').value = String(store.settings.intervalMin);
-  $('setRetention').value = String(store.settings.retentionDays);
-  $('setKeywords').value = store.settings.keywords;
-  const cc = store.settings.channels;
-  $('chW').checked = !!cc.whispers; $('chH').checked = !!cc.hn;
-  $('chB').checked = !!cc.bsky; $('chR').checked = !!cc.reddit;
-  $('setOverlay').classList.add('open');
-});
-$('sClose').addEventListener('click',()=>$('setOverlay').classList.remove('open'));
-$('setOverlay').addEventListener('click',e=>{ if(e.target===$('setOverlay')) $('setOverlay').classList.remove('open'); });
-$('sSave').addEventListener('click',()=>{
-  store.settings.intervalMin = parseInt($('setInterval').value,10);
-  store.settings.retentionDays = parseInt($('setRetention').value,10);
-  store.settings.keywords = $('setKeywords').value.trim() || DEFAULTS.keywords;
-  store.settings.channels = { whispers:$('chW').checked, hn:$('chH').checked, bsky:$('chB').checked, reddit:$('chR').checked };
-  store.mentions = store.mentions.filter(m => new Date(m.time).getTime() >= cutoff());
-  saveStore(); renderAll();
-  $('setOverlay').classList.remove('open');
-});
-$('sClear').addEventListener('click',()=>{
-  store.mentions = []; store.lastLog = []; store.lastScan = 0;
-  saveStore(); renderAll();
-});
-
-/* ================= Manual scan ================= */
-$('btnScan').addEventListener('click',()=>runScan('manual'));
-
-/* ================= Daily report ================= */
-const overlay = $('overlay');
-const rBody = $('rBody');
-const btnR = $('btnReport');
-$('rClose').addEventListener('click',()=>overlay.classList.remove('open'));
-overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.classList.remove('open'); });
-$('rCopy').addEventListener('click',()=>{
-  navigator.clipboard.writeText(rBody.innerText).then(()=>{ $('rCopy').textContent='Copied ✓'; setTimeout(()=>$('rCopy').textContent='Copy to clipboard',1500); });
-});
-$('rAgain').addEventListener('click',generate);
-btnR.addEventListener('click',()=>{ overlay.classList.add('open'); generate(); });
-
-function plain(html){ const d=document.createElement('div'); d.innerHTML=html; return d.textContent; }
-function fallbackReport(){
-  const items = allMentions();
-  const attn = items.filter(m=>m.sev==='attn');
-  const good = items.filter(m=>m.sev==='good');
-  const ch = new Set(items.map(m=>m.src)).size;
-  const net = items.length ? ((good.length-attn.length)/items.length) : 0;
-  let r = 'SUMMARY\n'+items.length+' mentions in the last '+store.settings.retentionDays+' day(s) across '+ch+' channels. Net sentiment '+(net>=0?'+':'')+net.toFixed(2)+' ('+good.length+' positive, '+attn.length+' needing attention, '+(items.length-good.length-attn.length)+' neutral).\n\nNEEDS ATTENTION\n';
-  r += attn.length ? attn.slice(0,5).map((m,i)=>(i+1)+'. '+m.src+' — '+plain(m.text).slice(0,140)+' ['+plain(m.tag)+']').join('\n') : 'None flagged in this window.';
-  r += '\n\nPOSITIVE HIGHLIGHTS\n';
-  r += good.length ? good.slice(0,5).map(m=>'• '+m.src+' — '+plain(m.text).slice(0,140)).join('\n') : 'None in this window.';
-  r += '\n\nSCANNER\nLast scan: '+(store.lastScan?new Date(store.lastScan).toLocaleString('en-SG'):'never')+'. Live sources: NUSWhispers, Reddit, Bluesky, Hacker News. X/LinkedIn/TikTok/press pending server pipeline.';
-  return r;
-}
-
-async function generate(){
-  btnR.disabled = true; btnR.innerHTML = '<span class="spin"></span>Generating…';
-  rBody.textContent = 'Analysing tracked mentions…';
-  const items = allMentions();
-  const data = items.map(m=>`[${m.sev.toUpperCase()}] ${m.src} (${m.reach}, ${fmtRel(m.time)}): ${plain(m.text)}`).join('\n');
-  try{
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000,
-        messages:[{role:'user',content:
-`You are the media-monitoring analyst for NUS School of Computing's communications team. Write today's daily report from these tracked mentions (last ${store.settings.retentionDays} days):
-
-${data}
-
-Format in plain text with these sections in caps: SUMMARY (2-3 sentences with overall sentiment), NEEDS ATTENTION (numbered, each with a one-line recommended action; never suggest automated replies for wellbeing items — route those to the wellbeing team), POSITIVE HIGHLIGHTS (bulleted, note which are showcase-worthy), WATCH (1-2 forward-looking notes). Be concise and practical. No markdown symbols other than numbers and bullet dots.`}]})
-    });
-    const j = await res.json();
-    const text = (j.content||[]).map(b=>b.text||'').join('\n').trim();
-    rBody.textContent = text || fallbackReport();
-  }catch(e){
-    rBody.textContent = fallbackReport();
-  }
-  btnR.disabled = false; btnR.textContent = 'Generate daily report';
-}
-
-/* ================= Boot ================= */
-renderAll();
-if(store.settings.intervalMin > 0 && Date.now() - store.lastScan >= store.settings.intervalMin*60000){
-  runScan('startup');
-}
-</script>
+<script type="module" src="assets/app.js"></script>
 </body>
 </html>

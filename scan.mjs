@@ -1,205 +1,60 @@
-// SoC Pulse server-side scanner
-// Runs in GitHub Actions (Node 20+). Scans public sources and writes data/mentions.json.
-// Reddit needs REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET; Bluesky works best with
-// BSKY_HANDLE / BSKY_APP_PASSWORD. Both are optional - see SETUP.md.
-
+// SoC Pulse scanner. Runs hourly in GitHub Actions (Node 20+); also runnable locally: node scan.mjs
+// 1. each enabled connector fetches recent public posts
+// 2. engine/pipeline matches them against config/monitors.json and classifies sentiment
+// 3. writes data/mentions.json (matched posts, 30 days) and data/pool.json (all fetched posts, 7 days,
+//    used by the dashboard's query tester)
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { buildOutputs } from './engine/pipeline.mjs';
 
-const RETAIN_DAYS = 30;
-const CUTOFF = Date.now() - RETAIN_DAYS * 86400000;
-const MAX_ITEMS = 300;
-const KEYWORDS = ['computing', 'computer science', 'coursereg', 'cs1101s', 'cs2030s', 'fyp', 'soc'];
-const OUT = 'data/mentions.json';
+const CONNECTORS = {
+  nuswhispers: () => import('./connectors/nuswhispers.mjs'),
+  hackernews: () => import('./connectors/hackernews.mjs'),
+  hardwarezone: () => import('./connectors/hardwarezone.mjs'),
+  reddit: () => import('./connectors/reddit.mjs'),
+  bluesky: () => import('./connectors/bluesky.mjs')
+};
 
-const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const readJSON = (path, fallback) => { try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return fallback; } };
 
-function classify(text) {
-  const t = text.toLowerCase();
-  if (/(depress|anxi|suicid|self[- ]?harm|burn[t ]?out|burnout|overwhelm|mental health|hopeless|lonely|breaking down)/.test(t))
-    return { sev: 'attn', tag: 'Possible wellbeing signal \u00b7 route to wellbeing team \u2014 no automated reply' };
-  if (/(complain|fail|worst|angry|disappoint|frustrat|scam|broken|can'?t get|cannot get|no job|jobless|reject|retrench|unfair|rant|struggl|regret|stress|toxic|waste)/.test(t))
-    return { sev: 'attn', tag: 'Negative sentiment \u00b7 review &amp; monitor' };
-  if (/(congrat|award|win\b|won\b|proud|launch|welcome|love|amazing|best|excit|achiev|grateful|thank|top \d|breakthrough|scholarship)/.test(t))
-    return { sev: 'good', tag: 'Positive mention \u00b7 consider amplifying' };
-  return { sev: 'neutral', tag: 'Community chatter \u00b7 monitor' };
-}
+const config = readJSON('config/monitors.json', null);
+if (!config) { console.error('config/monitors.json missing or invalid'); process.exit(1); }
 
-async function fetchJSON(url, opts = {}, ms = 15000) {
-  const c = new AbortController();
-  const to = setTimeout(() => c.abort(), ms);
+const now = Date.now();
+const since = now - (config.retention?.poolDays || 7) * 86400000;
+const existing = readJSON('data/mentions.json', {}).mentions || [];
+const pool = readJSON('data/pool.json', {}).posts || [];
+
+const fresh = [], sources = [];
+for (const [key, cfg] of Object.entries(config.sources || {})) {
+  const entry = { key, label: cfg.label || key };
+  if (!cfg.enabled) { sources.push({ ...entry, status: 'disabled', note: cfg.note || '' }); continue; }
+  if (!CONNECTORS[key]) { sources.push({ ...entry, status: 'error', note: 'no connector for this source' }); continue; }
   try {
-    const r = await fetch(url, { ...opts, signal: c.signal });
-    clearTimeout(to);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return await r.json();
-  } catch (e) { clearTimeout(to); throw e; }
-}
-
-const kwMatch = low => KEYWORDS.some(k => low.includes(k)) || /\bsoc\b|school of computing|comp\s?sci/.test(low);
-
-async function scanNUSWhispers() {
-  const out = [];
-  const addConf = c => {
-    const ts = c.created_at || c.status_updated_at || '';
-    if (!ts) return;
-    const when = new Date(String(ts).replace(' ', 'T') + '+08:00'); // API times are SGT
-    if (isNaN(when) || when.getTime() < CUTOFF) return;
-    const body = (c.content || '').replace(/\s+/g, ' ').trim();
-    if (!body) return;
-    const cls = classify(body);
-    out.push({
-      id: 'w' + c.confession_id, sev: cls.sev, src: 'NUSWhispers', time: when.toISOString(),
-      reach: 'Confession #' + c.confession_id + ' \u00b7 ' + (c.views || 0) + ' views' + (c.fb_like_count ? ' \u00b7 ' + c.fb_like_count + ' likes' : ''),
-      text: esc(body.length > 240 ? body.slice(0, 240) + '\u2026' : body),
-      tag: cls.tag, url: 'https://www.nuswhispers.com/confession/' + c.confession_id
-    });
-  };
-  const recent = await fetchJSON('https://www.nuswhispers.com/api/confessions/recent?count=60');
-  for (const c of recent.data?.confessions || []) {
-    if (kwMatch((c.content || '').toLowerCase())) addConf(c);
-  }
-  for (const kw of KEYWORDS.slice(0, 4)) {
-    try {
-      const j = await fetchJSON('https://www.nuswhispers.com/api/confessions/search/' + encodeURIComponent(kw) + '?count=10');
-      for (const c of j.data?.confessions || []) addConf(c);
-    } catch (e) { /* keep going */ }
-  }
-  return out;
-}
-
-async function scanHackerNews() {
-  const out = [];
-  const j = await fetchJSON('https://hn.algolia.com/api/v1/search_by_date?query=' + encodeURIComponent('"NUS" computing') + '&tags=story&hitsPerPage=20');
-  for (const h of j.hits || []) {
-    const when = new Date(h.created_at);
-    if (isNaN(when) || when.getTime() < CUTOFF) continue;
-    const title = (h.title || '').trim();
-    if (!title) continue;
-    if (!(/\bnus\b/i.test(title) || kwMatch(title.toLowerCase()))) continue;
-    const cls = classify(title);
-    out.push({
-      id: 'hn' + h.objectID, sev: cls.sev, src: 'Hacker News', time: when.toISOString(),
-      reach: (h.points || 0) + ' points \u00b7 ' + (h.num_comments || 0) + ' comments',
-      text: esc(title), tag: cls.tag,
-      url: h.url || 'https://news.ycombinator.com/item?id=' + h.objectID
-    });
-  }
-  return out;
-}
-
-async function scanBluesky() {
-  const out = [];
-  const q = encodeURIComponent('NUS computing');
-  const handle = process.env.BSKY_HANDLE, pw = process.env.BSKY_APP_PASSWORD;
-  let j;
-  if (handle && pw) {
-    // Authenticated: Bluesky's public AppView rejects datacenter IPs, but a logged-in
-    // session through the user's PDS is allowed. App passwords are revocable and read-only here.
-    const sess = await fetchJSON('https://bsky.social/xrpc/com.atproto.server.createSession', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier: handle, password: pw })
-    });
-    j = await fetchJSON('https://bsky.social/xrpc/app.bsky.feed.searchPosts?q=' + q + '&limit=25', {
-      headers: { 'Authorization': 'Bearer ' + sess.accessJwt }
-    });
-  } else {
-    try {
-      j = await fetchJSON('https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=' + q + '&limit=25');
-    } catch (e) {
-      throw new Error('no credentials (see SETUP.md) - public API returned ' + e.message);
-    }
-  }
-  for (const p of j.posts || []) {
-    const rkey = (p.uri || '').split('/').pop();
-    const when = new Date(p.record?.createdAt);
-    if (isNaN(when) || when.getTime() < CUTOFF) continue;
-    const body = (p.record?.text || '').replace(/\s+/g, ' ').trim();
-    if (!/\bnus\b/i.test(body)) continue;
-    const cls = classify(body);
-    out.push({
-      id: 'b' + rkey, sev: cls.sev, src: 'Bluesky', time: when.toISOString(),
-      reach: (p.likeCount || 0) + ' likes \u00b7 ' + (p.repostCount || 0) + ' reposts',
-      text: esc(body.length > 240 ? body.slice(0, 240) + '\u2026' : body),
-      tag: cls.tag, url: 'https://bsky.app/profile/' + (p.author?.handle || '') + '/post/' + rkey
-    });
-  }
-  return out;
-}
-
-async function scanReddit() {
-  const id = process.env.REDDIT_CLIENT_ID, secret = process.env.REDDIT_CLIENT_SECRET;
-  if (!id || !secret) throw new Error('no credentials (see SETUP.md)');
-  const ua = process.env.REDDIT_USER_AGENT || 'soc-pulse-scanner/1.0 (NUS SoC comms monitoring)';
-  const tok = await fetchJSON('https://www.reddit.com/api/v1/access_token', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Basic ' + Buffer.from(id + ':' + secret).toString('base64'),
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': ua
-    },
-    body: 'grant_type=client_credentials'
-  });
-  const j = await fetchJSON('https://oauth.reddit.com/r/nus/new?limit=50', {
-    headers: { 'Authorization': 'Bearer ' + tok.access_token, 'User-Agent': ua }
-  });
-  const out = [];
-  for (const k of j.data?.children || []) {
-    const p = k.data || {};
-    const when = new Date((p.created_utc || 0) * 1000);
-    if (isNaN(when) || when.getTime() < CUTOFF) continue;
-    const body = ((p.title || '') + '. ' + (p.selftext || '')).replace(/\s+/g, ' ').trim();
-    if (!kwMatch(body.toLowerCase())) continue;
-    const cls = classify(body);
-    out.push({
-      id: 'r' + p.id, sev: cls.sev, src: 'Reddit \u00b7 r/nus', time: when.toISOString(),
-      reach: (p.ups || 0) + ' upvotes \u00b7 ' + (p.num_comments || 0) + ' comments',
-      text: esc(body.length > 240 ? body.slice(0, 240) + '\u2026' : body),
-      tag: cls.tag, url: 'https://www.reddit.com' + p.permalink
-    });
-  }
-  return out;
-}
-
-// ---- run all scanners, merge with existing file, write ----
-let existing = [];
-try { existing = JSON.parse(readFileSync(OUT, 'utf8')).mentions || []; } catch (e) { /* first run */ }
-
-const byId = new Map();
-for (const m of existing) {
-  const t = new Date(m.time).getTime();
-  if (!isNaN(t) && t >= CUTOFF) byId.set(m.id, m);
-}
-
-const sources = [
-  ['NUSWhispers', scanNUSWhispers],
-  ['Reddit \u00b7 r/nus', scanReddit],
-  ['Bluesky', scanBluesky],
-  ['Hacker News', scanHackerNews]
-];
-const log = [];
-for (const [name, fn] of sources) {
-  try {
-    const items = await fn();
-    let fresh = 0;
-    for (const m of items) { if (!byId.has(m.id)) fresh++; byId.set(m.id, m); }
-    log.push(name + ': ' + fresh + ' new (' + items.length + ' in window)');
+    const { scan } = await CONNECTORS[key]();
+    const t0 = Date.now();
+    const r = await scan(cfg, { since });
+    fresh.push(...r.posts);
+    sources.push({ ...entry, status: 'ok', fetched: r.posts.length, note: r.note || '', ms: Date.now() - t0 });
   } catch (e) {
-    log.push(name + ': FAILED - ' + e.message);
+    sources.push({ ...entry, status: 'error', note: e.message });
   }
 }
 
-const mentions = [...byId.values()]
-  .sort((a, b) => new Date(b.time) - new Date(a.time))
-  .slice(0, MAX_ITEMS);
+const out = buildOutputs({ existing, pool, fresh, config, now });
+
+// per-source matched counts for the status panel
+for (const s of sources) s.matched = out.mentions.filter(m => m.srcKey === s.key).length;
 
 mkdirSync('data', { recursive: true });
-writeFileSync(OUT, JSON.stringify({
-  updated: new Date().toISOString(),
-  retain_days: RETAIN_DAYS,
-  log,
-  mentions
+const updated = new Date(now).toISOString();
+writeFileSync('data/mentions.json', JSON.stringify({
+  schema: 2, updated, retain_days: config.retention?.mentionsDays || 30,
+  newMatches: out.newMatches, sources, mentions: out.mentions
 }, null, 1));
+writeFileSync('data/pool.json', JSON.stringify({
+  schema: 2, updated, retain_days: config.retention?.poolDays || 7, posts: out.pool
+}));
 
-console.log('SoC Pulse scan complete:');
-for (const l of log) console.log('  ' + l);
-console.log('  total in ' + OUT + ': ' + mentions.length);
+console.log(`SoC Pulse scan ${updated}`);
+for (const s of sources) console.log(`  ${s.label}: ${s.status}${s.fetched != null ? ` · ${s.fetched} fetched` : ''}${s.matched != null ? ` · ${s.matched} matched (30 d)` : ''}${s.note ? ` · ${s.note}` : ''}`);
+console.log(`  mentions: ${out.mentions.length} (${out.newMatches} new) · pool: ${out.pool.length}`);
